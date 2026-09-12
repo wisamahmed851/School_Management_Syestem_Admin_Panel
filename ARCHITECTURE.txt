@@ -1,0 +1,156 @@
+================================================================================
+ARCHITECTURE — School Management System Admin Panel
+Read this before every task. Follow every rule without exception.
+================================================================================
+
+## Folder structure
+
+src/
+  app/                        Next.js App Router pages and route groups
+    (auth)/login/             Login page — no layout shell, no auth guard
+    (dashboard)/              All protected pages, wrapped by dashboard shell
+      layout.tsx              Sidebar + Header + <main> shell (client component)
+      admins/                 Admins CRUD pages
+      assignments/            Assignments pages
+      attendance/             Attendance pages
+      class-subjects/         Class-Subject-Teacher mapping pages
+      classes/                Classes pages
+      dashboard/              Dashboard home page
+      exams/                  Exams & results pages
+      guardians/              Guardians pages
+      permissions/            Permissions pages
+      roles/                  Roles pages
+      students/               Students pages
+      subjects/               Subjects pages
+      teachers/               Teachers pages
+    globals.css               Tailwind base + all CSS custom-property theme tokens
+    layout.tsx                Root layout — QueryProvider + ThemeProvider
+    page.tsx                  Root redirect (/ -> /dashboard or /login)
+
+  components/
+    layout/                   Shell-level components rendered exactly once
+      Header.tsx              Top bar — breadcrumbs left, admin avatar right
+      Sidebar.tsx             Left nav — driven entirely by useSidebar() data
+      SidebarItem.tsx         Recursive leaf/group renderer for Sidebar
+      Breadcrumbs.tsx         Auto-generated from pathname segments
+    shared/                   Reusable multi-page composites
+      DataTable.tsx           Generic table with sorting/pagination
+      ConfirmDialog.tsx       Reusable destructive-action confirmation dialog
+      StatusBadge.tsx         Single source of truth for all status/state badges
+    ui/                       shadcn/ui primitives — generated, never hand-written
+      avatar.tsx, badge.tsx, button.tsx, card.tsx, dialog.tsx
+      form.tsx, input.tsx, label.tsx, skeleton.tsx, table.tsx
+
+  hooks/                      One file per resource; React Query wrappers only
+    use-login.ts              Auth mutation
+    use-sidebar.ts            GET /admin/sidebar query
+    use-admins.ts             Admin queries + mutations
+    use-assignments.ts
+    use-attendance.ts
+    use-class-subjects.ts
+    use-classes.ts
+    use-exams.ts
+    use-guardians.ts
+    use-permissions.ts
+    use-roles.ts
+    use-students.ts
+    use-subjects.ts
+    use-teachers.ts
+
+  lib/
+    api/
+      client.ts               Axios instance — Bearer token interceptor, 401 handler
+      endpoints.ts            ONLY place route strings live — grouped by resource
+      auth.ts                 Auth API functions
+      sidebar.ts              Sidebar API function
+      admins.ts, assignments.ts, attendance.ts, class-subjects.ts
+      classes.ts, exams.ts, guardians.ts, permissions.ts, roles.ts
+      students.ts, subjects.ts, teachers.ts
+    auth/
+      auth-store.ts           Zustand store — token, admin, permissions[], setPermissions()
+      guards.tsx              Route-guard components / HOCs
+      permissions.ts          Permission-check helpers
+    validators/               Zod schemas, one file per resource
+      *.schema.ts
+    utils.ts                  cn() re-export and other pure utilities
+
+  providers/
+    query-provider.tsx        TanStack Query client wrapper
+    theme-provider.tsx        next-themes wrapper
+
+  types/                      TypeScript interfaces, one file per resource
+    admin.ts, assignment.ts, attendance.ts, class-subject.ts, class.ts
+    exam.ts, guardian.ts, permission.ts, role.ts, sidebar.ts
+    student.ts, subject.ts, teacher.ts
+
+  proxy.ts                    Next.js middleware — redirects unauthenticated requests
+
+
+================================================================================
+## API pattern — mandatory for every new resource
+
+Data flow:
+  page/component -> hook (hooks/use-x.ts) -> api fn (lib/api/x.ts) -> client.ts
+
+Rules:
+- Never call apiClient / axios / fetch directly from a component or hook body.
+- Every API function lives in lib/api/x.ts and calls apiClient from client.ts.
+- Every route string lives in lib/api/endpoints.ts in its resource group.
+  Never inline a URL string anywhere else, not even in a comment example.
+- Response types in types/x.ts must mirror API_DOCUMENTATION.txt exactly.
+  No invented fields, no renamed fields, no optional-ifying required fields.
+- Mutations use useMutation; reads use useQuery.
+- queryKey format: [resource] for lists, [resource, id] for single records,
+  [resource, "nested", id] for sub-resources.
+- Always invalidate the relevant queryKey on mutation success.
+
+
+================================================================================
+## Theming — mandatory for every new component
+
+- Never hardcode a color value: no hex (#fff), no rgb(), no raw Tailwind
+  palette class (bg-blue-500, text-gray-700, etc.).
+- Only use semantic token classes that map to CSS custom properties defined
+  in globals.css: bg-background, bg-card, bg-primary, bg-accent, bg-muted,
+  text-foreground, text-muted-foreground, text-primary-foreground,
+  text-accent-foreground, border-border, ring-ring, etc.
+- Never build a UI primitive (button, input, badge, dialog, table, etc.)
+  from scratch. Check components/ui/ first.
+  If the primitive is missing, run: npx shadcn add <component>
+  Then import and compose — do not write raw HTML+Tailwind as a substitute.
+- Shared multi-page composites go in components/shared/.
+- Page-specific one-off UI (a form only one page uses) stays inline in that
+  page file. Do not pre-emptively promote it to shared/.
+
+
+================================================================================
+## Sidebar / permissions
+
+- The sidebar menu tree always comes from GET /admin/sidebar (useSidebar()).
+  Render the array exactly as returned — do not filter, sort, reorder, or
+  reconstruct it client-side from role or permission data.
+- Sidebar.tsx syncs data.permissions into auth-store via setPermissions()
+  on mount. Components read permissions from the store; they do not re-fetch.
+- Page-level action buttons (Create, Edit, Delete, Grade, etc.) check the
+  "actions" object on that page's own leaf MenuNode.
+  Example: admins page checks node.actions.create / node.actions.remove.
+  Use the flat auth-store permissions[] only when there is no corresponding
+  menu leaf for the action being gated.
+- All status/state badge variants (active, inactive, pending, etc.) are
+  defined in components/shared/StatusBadge.tsx. Never create a one-off
+  inline badge for a status value — add the variant to StatusBadge instead.
+
+
+================================================================================
+## Before starting any new task
+
+1. Read this file and identify which section(s) apply.
+2. Follow the matching pattern exactly — no shortcuts, no exceptions.
+3. For a new resource: create types/x.ts -> lib/api/x.ts -> hooks/use-x.ts
+   in that order before touching any component.
+4. For a new UI component: check components/ui/ before writing any HTML.
+5. If the task genuinely cannot fit an existing pattern (new infra, a
+   third-party integration, etc.) — stop, explain the deviation, and wait
+   for explicit approval before proceeding.
+6. Never modify lib/api/client.ts, proxy.ts, or the root app/layout.tsx
+   unless the task explicitly targets one of those files.

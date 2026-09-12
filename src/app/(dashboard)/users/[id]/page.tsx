@@ -1,16 +1,15 @@
 "use client";
 
-import { useRef } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useRef } from "react";
+import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import {
-  createAdminSchema,
-  type CreateAdminFormValues,
-} from "@/lib/validators/admin.schema";
-import { useCreateAdmin } from "@/hooks/use-admins";
-import { useRolesList } from "@/hooks/use-roles";
+  updateUserSchema,
+  type UpdateUserFormValues,
+} from "@/lib/validators/user.schema";
+import { useUser, useUpdateUser } from "@/hooks/use-users";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -23,45 +22,76 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { SimpleSelect } from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
 
-export default function NewAdminPage() {
+export default function EditUserPage() {
+  const { id } = useParams<{ id: string }>();
   const router = useRouter();
-  const { mutate: createAdmin, isPending } = useCreateAdmin();
+  const { data: user, isPending, isError } = useUser(id);
+  const { mutate: updateUser, isPending: isSaving } = useUpdateUser();
   const imageRef = useRef<File | null>(null);
 
-  // Only roles with guard="admin" are valid for admin accounts
-  const { data: adminRoles = [], isPending: rolesLoading } =
-    useRolesList("admin");
-    console.log(adminRoles);
-  const roleOptions = adminRoles.map((r) => ({
-    value: String(r.id),
-    label: r.name,
-  }));
-
-  const form = useForm<CreateAdminFormValues>({
-    resolver: zodResolver(createAdminSchema),
-    defaultValues: { name: "", email: "", password: "", role_id: undefined },
+  const form = useForm<UpdateUserFormValues>({
+    resolver: zodResolver(updateUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      address: "",
+    },
   });
 
-  const onSubmit = (values: CreateAdminFormValues) => {
-    createAdmin(
-      { ...values, image: imageRef.current },
+  useEffect(() => {
+    if (user) {
+      form.reset({
+        name: user.name,
+        email: user.email,
+        password: "",
+        phone: user.phone ?? "",
+        address: user.address ?? "",
+      });
+    }
+  }, [user, form]);
+
+  if (isPending) {
+    return (
+      <div className="mx-auto max-w-lg py-8 flex flex-col gap-4">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <Skeleton key={i} className="h-10 w-full" />
+        ))}
+      </div>
+    );
+  }
+
+  if (isError || !user) {
+    return (
+      <div className="mx-auto max-w-lg py-8">
+        <p className="text-sm text-destructive">User not found.</p>
+      </div>
+    );
+  }
+
+  const onSubmit = (values: UpdateUserFormValues) => {
+    const payload: UpdateUserFormValues & { image?: File | null } = {
+      ...values,
+      image: imageRef.current,
+    };
+    // Don't send password if left blank
+    if (!payload.password) delete payload.password;
+
+    updateUser(
+      { id, payload },
       {
-        onSuccess: () => router.push("/admins"),
+        onSuccess: () => router.push("/users"),
         onError: (err) => {
           if (isAxiosError(err)) {
             const status = err.response?.status;
             const message = err.response?.data?.message;
-            if (status === 409) {
-              form.setError("email", {
-                message:
-                  typeof message === "string"
-                    ? message
-                    : "Email already exists",
-              });
-            } else if (status === 403) {
+            if (status === 403) {
               form.setError("root", { message: "Insufficient permissions." });
+            } else if (status === 404) {
+              form.setError("root", { message: "User not found." });
             } else {
               form.setError("root", {
                 message:
@@ -80,7 +110,7 @@ export default function NewAdminPage() {
     <div className="mx-auto max-w-lg py-8">
       <Card>
         <CardHeader>
-          <CardTitle>New Admin</CardTitle>
+          <CardTitle>Edit User</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -103,6 +133,7 @@ export default function NewAdminPage() {
                   Profile image
                 </span>
                 <ImageUpload
+                  value={user.image ?? undefined}
                   onChange={(file) => {
                     imageRef.current = file;
                   }}
@@ -114,13 +145,9 @@ export default function NewAdminPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Name{" "}
-                      <span className="text-muted-foreground">(optional)</span>
-                    </FormLabel>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Jane Smith"
                         aria-invalid={!!form.formState.errors.name}
                         {...field}
                       />
@@ -139,8 +166,6 @@ export default function NewAdminPage() {
                     <FormControl>
                       <Input
                         type="email"
-                        autoComplete="off"
-                        placeholder="jane@school.com"
                         aria-invalid={!!form.formState.errors.email}
                         {...field}
                       />
@@ -155,13 +180,17 @@ export default function NewAdminPage() {
                 name="password"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Password</FormLabel>
+                    <FormLabel>
+                      New password{" "}
+                      <span className="text-muted-foreground">
+                        (leave blank to keep current)
+                      </span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         type="password"
                         autoComplete="new-password"
                         placeholder="••••••••"
-                        aria-invalid={!!form.formState.errors.password}
                         {...field}
                       />
                     </FormControl>
@@ -172,28 +201,26 @@ export default function NewAdminPage() {
 
               <FormField
                 control={form.control}
-                name="role_id"
+                name="phone"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Role{" "}
-                      <span className="text-muted-foreground">(optional)</span>
-                    </FormLabel>
+                    <FormLabel>Phone</FormLabel>
                     <FormControl>
-                      <SimpleSelect
-                        options={roleOptions}
-                        value={field.value ? String(field.value) : ""}
-                        onValueChange={(val) => field.onChange(Number(val))}
-                        placeholder={
-                          rolesLoading
-                            ? "Loading roles…"
-                            : roleOptions.length === 0
-                              ? "No admin-guard roles available"
-                              : "Select a role"
-                        }
-                        disabled={rolesLoading || roleOptions.length === 0}
-                        aria-invalid={!!form.formState.errors.role_id}
-                      />
+                      <Input {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Address</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -201,13 +228,13 @@ export default function NewAdminPage() {
               />
 
               <div className="flex gap-2">
-                <Button type="submit" disabled={isPending} className="flex-1">
-                  {isPending ? "Creating…" : "Create admin"}
+                <Button type="submit" disabled={isSaving} className="flex-1">
+                  {isSaving ? "Saving…" : "Save changes"}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push("/admins")}
+                  onClick={() => router.push("/users")}
                 >
                   Cancel
                 </Button>

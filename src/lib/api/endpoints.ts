@@ -1,12 +1,13 @@
 /**
  * Central registry of every API route used by the application.
- * All 133 routes are listed here, grouped by resource.
  * NEVER hardcode a URL string anywhere else — always import from this file.
  */
 
 // ─── Auth ────────────────────────────────────────────────────────────────────
 export const AUTH = {
   LOGIN: "/admin/login",
+  PROFILE: "/admin/profile",
+  CHANGE_PASSWORD: "/admin/change-password",
   LOGOUT: "/admin/logout",
   ME: "/admin/me",
   REFRESH: "/admin/refresh",
@@ -14,40 +15,53 @@ export const AUTH = {
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
 export const SIDEBAR = {
-  GET: "/admin/sidebar",
+  GET: "/admin/me/menu",
 } as const;
 
 // ─── Admins ───────────────────────────────────────────────────────────────────
+// Base path: /admin  (Controller: AdminsController, section 2)
 export const ADMINS = {
-  LIST: "/admins",
-  CREATE: "/admins",
-  SHOW: (id: number | string) => `/admins/${id}`,
-  UPDATE: (id: number | string) => `/admins/${id}`,
-  DELETE: (id: number | string) => `/admins/${id}`,
-  ASSIGN_ROLES: (id: number | string) => `/admins/${id}/roles`,
-  REVOKE_ROLES: (id: number | string) => `/admins/${id}/roles`,
-  PERMISSIONS: (id: number | string) => `/admins/${id}/permissions`,
+  STORE: "/admin/store",
+  INDEX: "/admin/index",
+  ACTIVE: "/admin/active",
+  SHOW: (id: number | string) => `/admin/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/update/${id}`,
+  REMOVE: (id: number | string) => `/admin/remove/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/toggleStatus/${id}`,
+} as const;
+
+// ─── Users ────────────────────────────────────────────────────────────────────
+// Base path: /admin/users  (Controller: UsersController, section 3)
+export const USERS = {
+  STORE: "/admin/users/store",
+  INDEX: "/admin/users/index",
+  SHOW: (id: number | string) => `/admin/users/findOne/${id}`,
+  FIND_BY_EMAIL: "/admin/users/findOneByEmail",
+  UPDATE: (id: number | string) => `/admin/users/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/users/toggleStatus/${id}`,
 } as const;
 
 // ─── Roles ────────────────────────────────────────────────────────────────────
+// Base path: /admin/roles  (Controller: RolesController, section 4)
 export const ROLES = {
-  LIST: "/roles",
-  CREATE: "/roles",
-  SHOW: (id: number | string) => `/roles/${id}`,
-  UPDATE: (id: number | string) => `/roles/${id}`,
-  DELETE: (id: number | string) => `/roles/${id}`,
-  ASSIGN_PERMISSIONS: (id: number | string) => `/roles/${id}/permissions`,
-  REVOKE_PERMISSIONS: (id: number | string) => `/roles/${id}/permissions`,
-  PERMISSIONS: (id: number | string) => `/roles/${id}/permissions`,
+  STORE: "/admin/roles/store",
+  INDEX: "/admin/roles/index",
+  SHOW: (id: number | string) => `/admin/roles/show/${id}`,
+  UPDATE: (id: number | string) => `/admin/roles/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/roles/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/roles/remove/${id}`,
 } as const;
 
 // ─── Permissions ──────────────────────────────────────────────────────────────
+// Base path: /admin/permissions  (Controller: PermissionsController, section 5)
 export const PERMISSIONS = {
-  LIST: "/permissions",
-  CREATE: "/permissions",
-  SHOW: (id: number | string) => `/permissions/${id}`,
-  UPDATE: (id: number | string) => `/permissions/${id}`,
-  DELETE: (id: number | string) => `/permissions/${id}`,
+  STORE: "/admin/permissions/store",
+  INDEX: "/admin/permissions/index",
+  SHOW: (id: number | string) => `/admin/permissions/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/permissions/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) =>
+    `/admin/permissions/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/permissions/remove/${id}`,
 } as const;
 
 // ─── Teachers ─────────────────────────────────────────────────────────────────

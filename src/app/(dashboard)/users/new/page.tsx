@@ -6,10 +6,10 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
 import {
-  createAdminSchema,
-  type CreateAdminFormValues,
-} from "@/lib/validators/admin.schema";
-import { useCreateAdmin } from "@/hooks/use-admins";
+  createUserSchema,
+  type CreateUserFormValues,
+} from "@/lib/validators/user.schema";
+import { useCreateUser } from "@/hooks/use-users";
 import { useRolesList } from "@/hooks/use-roles";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -25,30 +25,37 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { SimpleSelect } from "@/components/ui/select";
 
-export default function NewAdminPage() {
+export default function NewUserPage() {
   const router = useRouter();
-  const { mutate: createAdmin, isPending } = useCreateAdmin();
+  const { mutate: createUser, isPending } = useCreateUser();
   const imageRef = useRef<File | null>(null);
 
-  // Only roles with guard="admin" are valid for admin accounts
-  const { data: adminRoles = [], isPending: rolesLoading } =
-    useRolesList("admin");
-    console.log(adminRoles);
-  const roleOptions = adminRoles.map((r) => ({
+  // Only roles with guard="user" are valid for user accounts
+  const { data: userRoles = [], isPending: rolesLoading } =
+    useRolesList("user");
+
+  const roleOptions = userRoles.map((r) => ({
     value: String(r.id),
     label: r.name,
   }));
 
-  const form = useForm<CreateAdminFormValues>({
-    resolver: zodResolver(createAdminSchema),
-    defaultValues: { name: "", email: "", password: "", role_id: undefined },
+  const form = useForm<CreateUserFormValues>({
+    resolver: zodResolver(createUserSchema),
+    defaultValues: {
+      name: "",
+      email: "",
+      password: "",
+      phone: "",
+      address: "",
+      role_id: 0,
+    },
   });
 
-  const onSubmit = (values: CreateAdminFormValues) => {
-    createAdmin(
+  const onSubmit = (values: CreateUserFormValues) => {
+    createUser(
       { ...values, image: imageRef.current },
       {
-        onSuccess: () => router.push("/admins"),
+        onSuccess: () => router.push("/users"),
         onError: (err) => {
           if (isAxiosError(err)) {
             const status = err.response?.status;
@@ -80,7 +87,7 @@ export default function NewAdminPage() {
     <div className="mx-auto max-w-lg py-8">
       <Card>
         <CardHeader>
-          <CardTitle>New Admin</CardTitle>
+          <CardTitle>New User</CardTitle>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -114,13 +121,10 @@ export default function NewAdminPage() {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>
-                      Name{" "}
-                      <span className="text-muted-foreground">(optional)</span>
-                    </FormLabel>
+                    <FormLabel>Name</FormLabel>
                     <FormControl>
                       <Input
-                        placeholder="Jane Smith"
+                        placeholder="Ahmed Khan"
                         aria-invalid={!!form.formState.errors.name}
                         {...field}
                       />
@@ -140,7 +144,7 @@ export default function NewAdminPage() {
                       <Input
                         type="email"
                         autoComplete="off"
-                        placeholder="jane@school.com"
+                        placeholder="ahmed@school.com"
                         aria-invalid={!!form.formState.errors.email}
                         {...field}
                       />
@@ -172,13 +176,44 @@ export default function NewAdminPage() {
 
               <FormField
                 control={form.control}
-                name="role_id"
+                name="phone"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      Role{" "}
+                      Phone{" "}
                       <span className="text-muted-foreground">(optional)</span>
                     </FormLabel>
+                    <FormControl>
+                      <Input placeholder="+92-300-0000000" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="address"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>
+                      Address{" "}
+                      <span className="text-muted-foreground">(optional)</span>
+                    </FormLabel>
+                    <FormControl>
+                      <Input placeholder="House 1, Street 1, City" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={form.control}
+                name="role_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Role</FormLabel>
                     <FormControl>
                       <SimpleSelect
                         options={roleOptions}
@@ -188,7 +223,7 @@ export default function NewAdminPage() {
                           rolesLoading
                             ? "Loading roles…"
                             : roleOptions.length === 0
-                              ? "No admin-guard roles available"
+                              ? "No user-guard roles available"
                               : "Select a role"
                         }
                         disabled={rolesLoading || roleOptions.length === 0}
@@ -202,12 +237,12 @@ export default function NewAdminPage() {
 
               <div className="flex gap-2">
                 <Button type="submit" disabled={isPending} className="flex-1">
-                  {isPending ? "Creating…" : "Create admin"}
+                  {isPending ? "Creating…" : "Create user"}
                 </Button>
                 <Button
                   type="button"
                   variant="outline"
-                  onClick={() => router.push("/admins")}
+                  onClick={() => router.push("/users")}
                 >
                   Cancel
                 </Button>

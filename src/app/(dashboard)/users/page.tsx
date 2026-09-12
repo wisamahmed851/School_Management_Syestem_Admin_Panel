@@ -3,35 +3,25 @@
 import { useState } from "react";
 import Link from "next/link";
 import { isAxiosError } from "axios";
-import { useAdminsList, useDeleteAdmin, useToggleAdminStatus } from "@/hooks/use-admins";
+import { useUsersList, useToggleUserStatus } from "@/hooks/use-users";
 import { useSidebar } from "@/hooks/use-sidebar";
 import DataTable, { type ColumnDef } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
-import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
-import type { AdminRecord } from "@/types/admin-resource";
+import type { User } from "@/types/user";
 
-export default function AdminsPage() {
-  const { data: admins = [], isPending } = useAdminsList();
+export default function UsersPage() {
+  const { data: users = [], isPending } = useUsersList();
   const { data: sidebar } = useSidebar();
-  const { mutate: deleteAdmin, isPending: isDeleting } = useDeleteAdmin();
-  const { mutate: toggleStatus } = useToggleAdminStatus();
+  const { mutate: toggleStatus } = useToggleUserStatus();
   const [forbiddenMsg, setForbiddenMsg] = useState<string | null>(null);
 
   const node = sidebar?.menu
     .flatMap((n) => ("children" in n ? n.children : [n]))
-    .find((n) => "route" in n && n.route === "/admins");
+    .find((n) => "route" in n && n.route === "/users");
   const actions = node && "actions" in node ? node.actions : {};
 
-  const handleDelete = (id: number) => {
-    deleteAdmin(id, {
-      onError: (err) => {
-        if (isAxiosError(err) && err.response?.status === 403)
-          setForbiddenMsg("Insufficient permissions to delete this admin.");
-      },
-    });
-  };
-
+  // Users have no delete route per API docs section 3 — only toggleStatus
   const handleToggle = (id: number) => {
     toggleStatus(id, {
       onError: (err) => {
@@ -41,7 +31,7 @@ export default function AdminsPage() {
     });
   };
 
-  const columns: ColumnDef<AdminRecord>[] = [
+  const columns: ColumnDef<User>[] = [
     { key: "id", header: "ID", cell: (r) => r.id, className: "w-16" },
     {
       key: "name",
@@ -57,7 +47,7 @@ export default function AdminsPage() {
       ),
     },
     { key: "email", header: "Email", cell: (r) => r.email },
-    { key: "created_at", header: "Created", cell: (r) => r.created_at },
+    { key: "phone", header: "Phone", cell: (r) => r.phone ?? "—" },
     {
       key: "status",
       header: "Status",
@@ -66,7 +56,7 @@ export default function AdminsPage() {
     {
       key: "actions",
       header: "",
-      className: "w-44 text-right",
+      className: "w-36 text-right",
       cell: (r) => (
         <div className="flex justify-end gap-2">
           {actions.toggleStatus && (
@@ -76,19 +66,8 @@ export default function AdminsPage() {
           )}
           {actions.update && (
             <Button size="xs" variant="outline" asChild>
-              <Link href={`/admins/${r.id}`}>Edit</Link>
+              <Link href={`/users/${r.id}`}>Edit</Link>
             </Button>
-          )}
-          {actions.remove && (
-            <ConfirmDialog
-              trigger={<Button size="xs" variant="destructive">Delete</Button>}
-              title="Delete admin"
-              description={`Delete "${r.name}"? This cannot be undone.`}
-              confirmLabel="Delete"
-              destructive
-              isLoading={isDeleting}
-              onConfirm={() => handleDelete(r.id)}
-            />
           )}
         </div>
       ),
@@ -98,10 +77,10 @@ export default function AdminsPage() {
   return (
     <div className="flex flex-col gap-4">
       <div className="flex items-center justify-between">
-        <h1 className="text-lg font-semibold text-foreground">Admins</h1>
+        <h1 className="text-lg font-semibold text-foreground">Users</h1>
         {actions.create && (
           <Button size="sm" asChild>
-            <Link href="/admins/new">New admin</Link>
+            <Link href="/users/new">New user</Link>
           </Button>
         )}
       </div>
@@ -110,10 +89,10 @@ export default function AdminsPage() {
       )}
       <DataTable
         columns={columns}
-        rows={admins}
+        rows={users}
         getRowKey={(r) => r.id}
         isLoading={isPending}
-        emptyMessage="No admins found."
+        emptyMessage="No users found."
       />
     </div>
   );

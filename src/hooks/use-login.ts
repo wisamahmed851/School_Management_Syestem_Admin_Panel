@@ -14,7 +14,7 @@ export function useLogin() {
     mutationFn: (payload: LoginPayload) => authApi.login(payload),
     onSuccess: (data) => {
       const { access_token, admin } = data.data;
-
+      console.log(access_token);
       // Persist token in cookie (accessible by proxy.ts for SSR redirect)
       Cookies.set("access_token", access_token, {
         secure: process.env.NODE_ENV === "production",
