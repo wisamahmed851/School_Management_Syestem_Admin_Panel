@@ -130,3 +130,47 @@ When adding a new resource (e.g. `reports`), create all of the following:
 - **`middleware.ts` is deprecated** — use `proxy.ts` with `export function proxy()`.
 - `LayoutProps<'/path'>` is a globally available type helper — no import needed.
 - `params` in layouts/pages is a `Promise` — use `async/await` or `React.use()`.
+
+---
+
+## Theming Rules
+
+> These rules apply to every component, page, and UI element in this project — no exceptions.
+
+### Rule T1 — No hardcoded colors, ever
+Never use a hardcoded color value (hex like `#4338CA`, rgb, or a raw Tailwind palette class like `bg-blue-500` / `text-indigo-600`) in any component file.
+Always use semantic token classes that map to the CSS variables defined in `globals.css`:
+- Backgrounds: `bg-background`, `bg-card`, `bg-muted`, `bg-primary`, `bg-secondary`, `bg-accent`, `bg-destructive`, `bg-success`, `bg-warning`
+- Text: `text-foreground`, `text-card-foreground`, `text-muted-foreground`, `text-primary-foreground`, `text-accent-foreground`, `text-destructive`, `text-success`, `text-warning`
+- Borders: `border-border`, `border-input`, `border-destructive`, `border-success`, `border-warning`
+- Ring: `ring-ring`
+
+### Rule T2 — Never build primitives from scratch
+If you need a button, input, dialog, table, badge, select, avatar, or any other common UI primitive, check `components/ui/` first.
+If it doesn't exist there yet, run `npx shadcn add <component>` to install it, then compose.
+Do not hand-roll HTML elements styled to look like a primitive.
+
+### Rule T3 — Component placement
+- `components/ui/` — shadcn primitives only. Never edit these files. Never add custom components here.
+- `components/shared/` — shared composite components used across multiple pages (DataTable, StatusBadge, ConfirmDialog, etc.).
+- `components/layout/` — structural layout components (Sidebar, Header, Breadcrumbs, SidebarItem).
+- Page-specific one-off UI (a single-use empty state, a unique illustration) lives inline in the page file only.
+
+### Rule T4 — All new status/state variants go in StatusBadge.tsx
+If a new resource introduces a new status string (e.g. `"draft"`, `"archived"`, `"approved"`), add a mapping entry to `components/shared/StatusBadge.tsx`.
+Never create a one-off badge with custom color classes in a page or component.
+
+### Token Reference (globals.css)
+
+| Token | Light | Dark | Usage |
+|-------|-------|------|-------|
+| `--primary` | `#4338CA` | `#6366F1` | Main actions, links |
+| `--background` | `#FFFFFF` | `#0B1120` | Page background |
+| `--card` | `#FFFFFF` | `#111827` | Card/panel surfaces |
+| `--muted` | `#F8FAFC` | `#1E293B` | Subtle backgrounds |
+| `--accent` | `#E0E7FF` | `#312E81` | Highlighted items |
+| `--destructive` | `#DC2626` | `#EF4444` | Delete/error states |
+| `--success` | `#16A34A` | `#22C55E` | Active/present/pass |
+| `--warning` | `#D97706` | `#F59E0B` | Pending/late states |
+| `--border` | `#E2E8F0` | `#1E293B` | All borders |
+| `--muted-foreground` | `#64748B` | `#94A3B8` | Secondary text |

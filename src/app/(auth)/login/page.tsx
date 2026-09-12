@@ -3,19 +3,36 @@
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { isAxiosError } from "axios";
-import { loginSchema, type LoginFormValues } from "@/lib/validators/login.schema";
+import {
+  loginSchema,
+  type LoginFormValues,
+} from "@/lib/validators/login.schema";
 import { useLogin } from "@/hooks/use-login";
+
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 
 export default function LoginPage() {
   const { mutate: login, isPending } = useLogin();
 
-  const {
-    register,
-    handleSubmit,
-    setError,
-    formState: { errors },
-  } = useForm<LoginFormValues>({
+  const form = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),
+    defaultValues: { email: "", password: "" },
   });
 
   const onSubmit = (values: LoginFormValues) => {
@@ -26,24 +43,24 @@ export default function LoginPage() {
           const responseData = error.response?.data;
 
           if (status === 401) {
-            // Invalid credentials — show inline error
-            setError("root", {
+            form.setError("root", {
               message: "Invalid email or password",
             });
           } else if (status === 400) {
-            // Validation errors — map to field-level errors
             const messages = responseData?.message;
             if (Array.isArray(messages)) {
               messages.forEach(
                 (err: { field?: string; message?: string } | string) => {
                   if (typeof err === "object" && err.field) {
                     const field = err.field as keyof LoginFormValues;
-                    setError(field, { message: err.message ?? "Invalid value" });
+                    form.setError(field, {
+                      message: err.message ?? "Invalid value",
+                    });
                   }
                 }
               );
             } else {
-              setError("root", {
+              form.setError("root", {
                 message:
                   typeof messages === "string"
                     ? messages
@@ -51,7 +68,7 @@ export default function LoginPage() {
               });
             }
           } else {
-            setError("root", {
+            form.setError("root", {
               message: "An unexpected error occurred. Please try again.",
             });
           }
@@ -61,92 +78,85 @@ export default function LoginPage() {
   };
 
   return (
-    <main className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-md p-8">
-        <h1 className="text-2xl font-semibold text-gray-900 mb-2">
-          Admin Sign In
-        </h1>
-        <p className="text-sm text-gray-500 mb-8">
-          School Management System
-        </p>
+    <main className="min-h-screen flex items-center justify-center bg-muted px-4">
+      <Card className="w-full max-w-md">
+        <CardHeader>
+          <CardTitle className="text-2xl">Admin Sign In</CardTitle>
+          <CardDescription>School Management System</CardDescription>
+        </CardHeader>
 
-        <form onSubmit={handleSubmit(onSubmit)} noValidate className="space-y-5">
-          {/* Root / server error */}
-          {errors.root && (
-            <div
-              role="alert"
-              className="rounded-lg bg-red-50 border border-red-200 px-4 py-3 text-sm text-red-700"
+        <CardContent>
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              noValidate
+              className="flex flex-col gap-5"
             >
-              {errors.root.message}
-            </div>
-          )}
+              {/* Root / server error */}
+              {form.formState.errors.root && (
+                <div
+                  role="alert"
+                  className="rounded-lg border border-destructive/20 bg-destructive/10 px-4 py-3 text-sm text-destructive"
+                >
+                  {form.formState.errors.root.message}
+                </div>
+              )}
 
-          {/* Email */}
-          <div className="space-y-1">
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Email address
-            </label>
-            <input
-              id="email"
-              type="email"
-              autoComplete="email"
-              aria-describedby={errors.email ? "email-error" : undefined}
-              aria-invalid={!!errors.email}
-              {...register("email")}
-              className={`w-full rounded-lg border px-3 py-2 text-sm shadow-sm outline-none transition focus:ring-2 focus:ring-blue-500 ${
-                errors.email
-                  ? "border-red-400 bg-red-50"
-                  : "border-gray-300 bg-white"
-              }`}
-            />
-            {errors.email && (
-              <p id="email-error" className="text-xs text-red-600 mt-1">
-                {errors.email.message}
-              </p>
-            )}
-          </div>
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email address</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="email"
+                        autoComplete="email"
+                        placeholder="admin@school.com"
+                        aria-invalid={!!form.formState.errors.email}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          {/* Password */}
-          <div className="space-y-1">
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              autoComplete="current-password"
-              aria-describedby={errors.password ? "password-error" : undefined}
-              aria-invalid={!!errors.password}
-              {...register("password")}
-              className={`w-full rounded-lg border px-3 py-2 text-sm shadow-sm outline-none transition focus:ring-2 focus:ring-blue-500 ${
-                errors.password
-                  ? "border-red-400 bg-red-50"
-                  : "border-gray-300 bg-white"
-              }`}
-            />
-            {errors.password && (
-              <p id="password-error" className="text-xs text-red-600 mt-1">
-                {errors.password.message}
-              </p>
-            )}
-          </div>
+              {/* Password */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input
+                        type="password"
+                        autoComplete="current-password"
+                        placeholder="••••••••"
+                        aria-invalid={!!form.formState.errors.password}
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-          {/* Submit */}
-          <button
-            type="submit"
-            disabled={isPending}
-            className="w-full rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {isPending ? "Signing in…" : "Sign in"}
-          </button>
-        </form>
-      </div>
+              {/* Submit */}
+              <Button
+                type="submit"
+                disabled={isPending}
+                className="w-full"
+                size="lg"
+              >
+                {isPending ? "Signing in…" : "Sign in"}
+              </Button>
+            </form>
+          </Form>
+        </CardContent>
+      </Card>
     </main>
   );
 }
