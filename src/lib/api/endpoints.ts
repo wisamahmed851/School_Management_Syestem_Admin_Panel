@@ -179,3 +179,76 @@ export const EXAMS = {
   BY_CLASS: (classId: number | string) => `/exams/class/${classId}`,
   BY_SUBJECT: (subjectId: number | string) => `/exams/subject/${subjectId}`,
 } as const;
+
+// ─── Role-Permissions (section 6) ─────────────────────────────────────────────
+// Base path: /admin/role-permissions
+export const ROLE_PERMISSIONS = {
+  STORE: "/admin/role-permissions/store",
+  INDEX: "/admin/role-permissions/index",
+  SHOW: (id: number | string) => `/admin/role-permissions/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/role-permissions/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) =>
+    `/admin/role-permissions/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/role-permissions/remove/${id}`,
+} as const;
+
+// ─── Admin-Roles (section 7) ──────────────────────────────────────────────────
+// Base path: /admin/roles-assigning-admin
+export const ADMIN_ROLES = {
+  STORE: "/admin/roles-assigning-admin/store",
+  INDEX: "/admin/roles-assigning-admin/index",
+  SHOW: (id: number | string) =>
+    `/admin/roles-assigning-admin/findOne/${id}`,
+  UPDATE: (id: number | string) =>
+    `/admin/roles-assigning-admin/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) =>
+    `/admin/roles-assigning-admin/toggleStatus/${id}`,
+  REMOVE: (id: number | string) =>
+    `/admin/roles-assigning-admin/remove/${id}`,
+} as const;
+
+// ─── User-Roles (section 8) ───────────────────────────────────────────────────
+// Base path: /admin/roles-assigning-user
+// NOTE: 8.2 list endpoint is /list (not /index) — per API_DOCUMENTATION.txt exactly
+export const USER_ROLES = {
+  STORE: "/admin/roles-assigning-user/store",
+  LIST: "/admin/roles-assigning-user/list",
+  SHOW: (id: number | string) =>
+    `/admin/roles-assigning-user/findOne/${id}`,
+  UPDATE: (id: number | string) =>
+    `/admin/roles-assigning-user/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) =>
+    `/admin/roles-assigning-user/toggleStatus/${id}`,
+  REMOVE: (id: number | string) =>
+    `/admin/roles-assigning-user/remove/${id}`,
+} as const;
+
+// ─── Admin-Permissions (section 9) ────────────────────────────────────────────
+// Base path: /admin/permission-assigning-admin
+export const ADMIN_PERMISSIONS = {
+  STORE: "/admin/permission-assigning-admin/store",
+  INDEX: "/admin/permission-assigning-admin/index",
+  SHOW: (id: number | string) =>
+    `/admin/permission-assigning-admin/findOne/${id}`,
+  UPDATE: (id: number | string) =>
+    `/admin/permission-assigning-admin/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) =>
+    `/admin/permission-assigning-admin/toggleStatus/${id}`,
+  REMOVE: (id: number | string) =>
+    `/admin/permission-assigning-admin/remove/${id}`,
+} as const;
+
+// ─── User-Permissions (section 10) ────────────────────────────────────────────
+// Base path: /admin/permission-assigning-user
+export const USER_PERMISSIONS = {
+  STORE: "/admin/permission-assigning-user/store",
+  INDEX: "/admin/permission-assigning-user/index",
+  SHOW: (id: number | string) =>
+    `/admin/permission-assigning-user/findOne/${id}`,
+  UPDATE: (id: number | string) =>
+    `/admin/permission-assigning-user/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) =>
+    `/admin/permission-assigning-user/toggleStatus/${id}`,
+  REMOVE: (id: number | string) =>
+    `/admin/permission-assigning-user/remove/${id}`,
+} as const;

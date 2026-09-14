@@ -76,6 +76,16 @@ export default function AdminsPage() {
           )}
           {actions.update && (
             <Button size="xs" variant="outline" asChild>
+              <Link href={`/admins/${r.id}/permissions`}>Permissions</Link>
+            </Button>
+          )}
+          {actions.update && (
+            <Button size="xs" variant="outline" asChild>
+              <Link href={`/admins/${r.id}/roles`}>Roles</Link>
+            </Button>
+          )}
+          {actions.update && (
+            <Button size="xs" variant="outline" asChild>
               <Link href={`/admins/${r.id}`}>Edit</Link>
             </Button>
           )}

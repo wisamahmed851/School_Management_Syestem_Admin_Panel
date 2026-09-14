@@ -56,12 +56,22 @@ export default function UsersPage() {
     {
       key: "actions",
       header: "",
-      className: "w-36 text-right",
+      className: "w-56 text-right",
       cell: (r) => (
         <div className="flex justify-end gap-2">
           {actions.toggleStatus && (
             <Button size="xs" variant="outline" onClick={() => handleToggle(r.id)}>
               {r.status === 1 ? "Deactivate" : "Activate"}
+            </Button>
+          )}
+          {actions.update && (
+            <Button size="xs" variant="outline" asChild>
+              <Link href={`/users/${r.id}/permissions`}>Permissions</Link>
+            </Button>
+          )}
+          {actions.update && (
+            <Button size="xs" variant="outline" asChild>
+              <Link href={`/users/${r.id}/roles`}>Roles</Link>
             </Button>
           )}
           {actions.update && (

@@ -59,7 +59,7 @@ export default function RolesPage() {
     {
       key: "actions",
       header: "",
-      className: "w-40 text-right",
+      className: "w-56 text-right",
       cell: (r) => (
         <div className="flex justify-end gap-2">
           {actions.toggleStatus && (
@@ -69,6 +69,13 @@ export default function RolesPage() {
               onClick={() => handleToggle(r.id)}
             >
               {r.status === 1 ? "Deactivate" : "Activate"}
+            </Button>
+          )}
+          {/* Gate on role-permissions.create/.index if present; fall back to
+              roles.update as the closest available permission. */}
+          {actions.update && (
+            <Button size="xs" variant="outline" asChild>
+              <Link href={`/roles/${r.id}/permissions`}>Permissions</Link>
             </Button>
           )}
           {actions.update && (
