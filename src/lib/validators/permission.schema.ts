@@ -1,7 +1,7 @@
 import { z } from "zod";
 
 const guardEnum = z.enum(["admin", "user"], {
-  errorMap: () => ({ message: 'Guard must be "admin" or "user"' }),
+  error: 'Guard must be "admin" or "user"',
 });
 
 export const createPermissionSchema = z.object({

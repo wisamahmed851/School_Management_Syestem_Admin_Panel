@@ -107,7 +107,7 @@ export interface SelectOption {
 interface SimpleSelectProps {
   value?: string;
   onValueChange?: (value: string) => void;
-  options: SelectOption[];
+  options: readonly SelectOption[];
   placeholder?: string;
   disabled?: boolean;
   className?: string;
@@ -128,7 +128,14 @@ function SimpleSelect({
   "aria-invalid": ariaInvalid,
 }: SimpleSelectProps) {
   return (
-    <Select value={value} onValueChange={onValueChange} disabled={disabled}>
+    // Base UI reports null when the selection is cleared; the UI has no clear action.
+    <Select
+      value={value}
+      onValueChange={(v) => {
+        if (v !== null) onValueChange?.(v);
+      }}
+      disabled={disabled}
+    >
       <SelectTrigger
         placeholder={placeholder}
         className={className}

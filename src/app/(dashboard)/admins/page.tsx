@@ -4,24 +4,21 @@ import { useState } from "react";
 import Link from "next/link";
 import { isAxiosError } from "axios";
 import { useAdminsList, useDeleteAdmin, useToggleAdminStatus } from "@/hooks/use-admins";
-import { useSidebar } from "@/hooks/use-sidebar";
+import { useRouteActions } from "@/hooks/use-sidebar";
 import DataTable, { type ColumnDef } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import ConfirmDialog from "@/components/shared/ConfirmDialog";
 import { Button } from "@/components/ui/button";
 import type { AdminRecord } from "@/types/admin-resource";
+import { uploadUrl } from "@/lib/utils";
 
 export default function AdminsPage() {
   const { data: admins = [], isPending } = useAdminsList();
-  const { data: sidebar } = useSidebar();
   const { mutate: deleteAdmin, isPending: isDeleting } = useDeleteAdmin();
   const { mutate: toggleStatus } = useToggleAdminStatus();
   const [forbiddenMsg, setForbiddenMsg] = useState<string | null>(null);
 
-  const node = sidebar?.menu
-    .flatMap((n) => ("children" in n ? n.children : [n]))
-    .find((n) => "route" in n && n.route === "/admins");
-  const actions = node && "actions" in node ? node.actions : {};
+  const { actions } = useRouteActions("/admins");
 
   const handleDelete = (id: number) => {
     deleteAdmin(id, {
@@ -50,7 +47,7 @@ export default function AdminsPage() {
         <div className="flex items-center gap-2">
           {r.image && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={r.image} alt={r.name} className="h-7 w-7 rounded-full object-cover border border-border" />
+            <img src={uploadUrl(r.image)} alt={r.name} className="h-7 w-7 rounded-full object-cover border border-border" />
           )}
           <span>{r.name}</span>
         </div>
@@ -75,18 +72,18 @@ export default function AdminsPage() {
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/admins/${r.id}/permissions`}>Permissions</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/admins/${r.id}/permissions`}></Link>}>
+              Permissions
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/admins/${r.id}/roles`}>Roles</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/admins/${r.id}/roles`}></Link>}>
+              Roles
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/admins/${r.id}`}>Edit</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/admins/${r.id}`}></Link>}>
+              Edit
             </Button>
           )}
           {actions.remove && (
@@ -110,8 +107,8 @@ export default function AdminsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">Admins</h1>
         {actions.create && (
-          <Button size="sm" asChild>
-            <Link href="/admins/new">New admin</Link>
+          <Button size="sm" render={<Link href="/admins/new"></Link>}>
+            New admin
           </Button>
         )}
       </div>

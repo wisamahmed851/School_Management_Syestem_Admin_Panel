@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,12 +28,11 @@ import { SimpleSelect } from "@/components/ui/select";
 export default function NewAdminPage() {
   const router = useRouter();
   const { mutate: createAdmin, isPending } = useCreateAdmin();
-  const imageRef = useRef<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
 
   // Only roles with guard="admin" are valid for admin accounts
   const { data: adminRoles = [], isPending: rolesLoading } =
     useRolesList("admin");
-    console.log(adminRoles);
   const roleOptions = adminRoles.map((r) => ({
     value: String(r.id),
     label: r.name,
@@ -46,7 +45,7 @@ export default function NewAdminPage() {
 
   const onSubmit = (values: CreateAdminFormValues) => {
     createAdmin(
-      { ...values, image: imageRef.current },
+      { ...values, image },
       {
         onSuccess: () => router.push("/admins"),
         onError: (err) => {
@@ -104,7 +103,7 @@ export default function NewAdminPage() {
                 </span>
                 <ImageUpload
                   onChange={(file) => {
-                    imageRef.current = file;
+                    setImage(file);
                   }}
                 />
               </div>

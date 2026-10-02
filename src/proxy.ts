@@ -1,30 +1,16 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 
+// The matcher below excludes /login and static assets, so every request reaching
+// this function is a protected route. Presence of the cookie is UX only; the
+// backend validates the token on every API call.
 export function proxy(request: NextRequest) {
-  const { pathname } = request.nextUrl;
+  if (!request.cookies.get("access_token")) {
+    return NextResponse.redirect(new URL("/login", request.url));
+  }
 
-  // Protect all (dashboard) group routes
-  const isDashboardRoute =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/admins") ||
-    pathname.startsWith("/roles") ||
-    pathname.startsWith("/permissions") ||
-    pathname.startsWith("/teachers") ||
-    pathname.startsWith("/guardians") ||
-    pathname.startsWith("/classes") ||
-    pathname.startsWith("/students") ||
-    pathname.startsWith("/subjects") ||
-    pathname.startsWith("/class-subjects") ||
-    pathname.startsWith("/attendance") ||
-    pathname.startsWith("/assignments") ||
-    pathname.startsWith("/exams");
-
-  if (isDashboardRoute) {
-    const token = request.cookies.get("access_token");
-    if (!token) {
-      return NextResponse.redirect(new URL("/login", request.url));
-    }
+  if (request.nextUrl.pathname === "/") {
+    return NextResponse.redirect(new URL("/dashboard", request.url));
   }
 
   return NextResponse.next();

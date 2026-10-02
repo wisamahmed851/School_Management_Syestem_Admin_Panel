@@ -46,6 +46,14 @@ export default function LoginPage() {
             form.setError("root", {
               message: "Invalid email or password",
             });
+          } else if (status === 403) {
+            // e.g. deactivated account
+            form.setError("root", {
+              message:
+                typeof responseData?.message === "string"
+                  ? responseData.message
+                  : "Access denied",
+            });
           } else if (status === 400) {
             const messages = responseData?.message;
             if (Array.isArray(messages)) {

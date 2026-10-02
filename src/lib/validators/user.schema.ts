@@ -9,7 +9,7 @@ export const createUserSchema = z.object({
   password: z.string().min(1, "Password is required"),
   phone: z.string().optional(),
   address: z.string().optional(),
-  role_id: z.coerce.number({ invalid_type_error: "Role is required" }).min(1, "Role is required"),
+  role_id: z.number({ error: "Role is required" }).min(1, "Role is required"),
   // image handled separately via ImageUpload (File | null)
 });
 

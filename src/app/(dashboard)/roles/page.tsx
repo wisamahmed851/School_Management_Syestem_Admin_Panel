@@ -74,13 +74,13 @@ export default function RolesPage() {
           {/* Gate on role-permissions.create/.index if present; fall back to
               roles.update as the closest available permission. */}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/roles/${r.id}/permissions`}>Permissions</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/roles/${r.id}/permissions`}></Link>}>
+              Permissions
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/roles/${r.id}`}>Edit</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/roles/${r.id}`}></Link>}>
+              Edit
             </Button>
           )}
           {actions.remove && (
@@ -108,8 +108,8 @@ export default function RolesPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">Roles</h1>
         {actions.create && (
-          <Button size="sm" asChild>
-            <Link href="/roles/new">New role</Link>
+          <Button size="sm" render={<Link href="/roles/new"></Link>}>
+            New role
           </Button>
         )}
       </div>

@@ -60,7 +60,7 @@ export default function Header({ adminName, adminAvatar }: HeaderProps) {
           </DropdownMenuTrigger>
 
           <DropdownMenuPortal>
-            <DropdownMenuPositioner alignment="end" side="bottom" sideOffset={6}>
+            <DropdownMenuPositioner align="end" side="bottom" sideOffset={6}>
               <DropdownMenuContent>
                 <DropdownMenuItem render={<Link href="/profile" />}>
                   Profile

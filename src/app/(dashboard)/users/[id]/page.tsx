@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -23,13 +23,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { uploadUrl } from "@/lib/utils";
 
 export default function EditUserPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: user, isPending, isError } = useUser(id);
   const { mutate: updateUser, isPending: isSaving } = useUpdateUser();
-  const imageRef = useRef<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
 
   const form = useForm<UpdateUserFormValues>({
     resolver: zodResolver(updateUserSchema),
@@ -75,7 +76,7 @@ export default function EditUserPage() {
   const onSubmit = (values: UpdateUserFormValues) => {
     const payload: UpdateUserFormValues & { image?: File | null } = {
       ...values,
-      image: imageRef.current,
+      image,
     };
     // Don't send password if left blank
     if (!payload.password) delete payload.password;
@@ -133,9 +134,9 @@ export default function EditUserPage() {
                   Profile image
                 </span>
                 <ImageUpload
-                  value={user.image ?? undefined}
+                  value={uploadUrl(user.image)}
                   onChange={(file) => {
-                    imageRef.current = file;
+                    setImage(file);
                   }}
                 />
               </div>

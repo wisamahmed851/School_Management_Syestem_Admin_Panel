@@ -9,8 +9,6 @@ export const AUTH = {
   PROFILE: "/admin/profile",
   CHANGE_PASSWORD: "/admin/change-password",
   LOGOUT: "/admin/logout",
-  ME: "/admin/me",
-  REFRESH: "/admin/refresh",
 } as const;
 
 // ─── Sidebar ─────────────────────────────────────────────────────────────────
@@ -65,119 +63,114 @@ export const PERMISSIONS = {
 } as const;
 
 // ─── Teachers ─────────────────────────────────────────────────────────────────
+// Base path: /admin/teachers  (Controller: TeacherController, section 11)
 export const TEACHERS = {
-  LIST: "/teachers",
-  CREATE: "/teachers",
-  SHOW: (id: number | string) => `/teachers/${id}`,
-  UPDATE: (id: number | string) => `/teachers/${id}`,
-  DELETE: (id: number | string) => `/teachers/${id}`,
-  CLASSES: (id: number | string) => `/teachers/${id}/classes`,
-  SUBJECTS: (id: number | string) => `/teachers/${id}/subjects`,
-  SCHEDULE: (id: number | string) => `/teachers/${id}/schedule`,
+  STORE: "/admin/teachers/store",
+  INDEX: "/admin/teachers/index",
+  SHOW: (id: number | string) => `/admin/teachers/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/teachers/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/teachers/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/teachers/remove/${id}`,
 } as const;
 
 // ─── Guardians ────────────────────────────────────────────────────────────────
+// Base path: /admin/guardians  (Controller: GuardianController, section 12)
 export const GUARDIANS = {
-  LIST: "/guardians",
-  CREATE: "/guardians",
-  SHOW: (id: number | string) => `/guardians/${id}`,
-  UPDATE: (id: number | string) => `/guardians/${id}`,
-  DELETE: (id: number | string) => `/guardians/${id}`,
-  STUDENTS: (id: number | string) => `/guardians/${id}/students`,
+  STORE: "/admin/guardians/store",
+  INDEX: "/admin/guardians/index",
+  SHOW: (id: number | string) => `/admin/guardians/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/guardians/update/${id}`,
+  REMOVE: (id: number | string) => `/admin/guardians/remove/${id}`,
 } as const;
 
 // ─── Classes ──────────────────────────────────────────────────────────────────
+// Base path: /admin/classes  (Controller: SchoolClassController, section 13)
 export const CLASSES = {
-  LIST: "/classes",
-  CREATE: "/classes",
-  SHOW: (id: number | string) => `/classes/${id}`,
-  UPDATE: (id: number | string) => `/classes/${id}`,
-  DELETE: (id: number | string) => `/classes/${id}`,
-  STUDENTS: (id: number | string) => `/classes/${id}/students`,
-  SUBJECTS: (id: number | string) => `/classes/${id}/subjects`,
-  SCHEDULE: (id: number | string) => `/classes/${id}/schedule`,
+  STORE: "/admin/classes/store",
+  INDEX: "/admin/classes/index",
+  SHOW: (id: number | string) => `/admin/classes/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/classes/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/classes/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/classes/remove/${id}`,
 } as const;
 
 // ─── Students ─────────────────────────────────────────────────────────────────
+// Base path: /admin/students  (Controller: StudentController, section 14)
 export const STUDENTS = {
-  LIST: "/students",
-  CREATE: "/students",
-  SHOW: (id: number | string) => `/students/${id}`,
-  UPDATE: (id: number | string) => `/students/${id}`,
-  DELETE: (id: number | string) => `/students/${id}`,
-  GUARDIAN: (id: number | string) => `/students/${id}/guardian`,
-  ATTENDANCE: (id: number | string) => `/students/${id}/attendance`,
-  GRADES: (id: number | string) => `/students/${id}/grades`,
-  SCHEDULE: (id: number | string) => `/students/${id}/schedule`,
+  STORE: "/admin/students/store",
+  INDEX: "/admin/students/index",
+  SHOW: (id: number | string) => `/admin/students/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/students/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/students/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/students/remove/${id}`,
 } as const;
 
 // ─── Subjects ─────────────────────────────────────────────────────────────────
+// Base path: /admin/subjects  (Controller: SubjectController, section 15)
 export const SUBJECTS = {
-  LIST: "/subjects",
-  CREATE: "/subjects",
-  SHOW: (id: number | string) => `/subjects/${id}`,
-  UPDATE: (id: number | string) => `/subjects/${id}`,
-  DELETE: (id: number | string) => `/subjects/${id}`,
+  STORE: "/admin/subjects/store",
+  INDEX: "/admin/subjects/index",
+  SHOW: (id: number | string) => `/admin/subjects/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/subjects/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/subjects/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/subjects/remove/${id}`,
 } as const;
 
 // ─── Class Subjects ───────────────────────────────────────────────────────────
+// Base path: /admin/class-subjects  (Controller: ClassSubjectController, section 16)
 export const CLASS_SUBJECTS = {
-  LIST: "/class-subjects",
-  CREATE: "/class-subjects",
-  SHOW: (id: number | string) => `/class-subjects/${id}`,
-  UPDATE: (id: number | string) => `/class-subjects/${id}`,
-  DELETE: (id: number | string) => `/class-subjects/${id}`,
-  BY_CLASS: (classId: number | string) => `/class-subjects/class/${classId}`,
-  BY_SUBJECT: (subjectId: number | string) =>
-    `/class-subjects/subject/${subjectId}`,
+  STORE: "/admin/class-subjects/store",
+  BY_CLASS: (classId: number | string) =>
+    `/admin/class-subjects/class/${classId}`,
+  BY_TEACHER: (teacherId: number | string) =>
+    `/admin/class-subjects/teacher/${teacherId}`,
+  UPDATE: (id: number | string) => `/admin/class-subjects/update/${id}`,
+  REMOVE: (id: number | string) => `/admin/class-subjects/remove/${id}`,
 } as const;
 
-// ─── Attendance ───────────────────────────────────────────────────────────────
+// ─── Dashboard ────────────────────────────────────────────────────────────────
+export const DASHBOARD = {
+  SUMMARY: "/admin/dashboard/summary",
+} as const;
+
+// ─── Attendance (API doc section 15) ──────────────────────────────────────────
+// Base path: /admin/attendance
 export const ATTENDANCE = {
-  LIST: "/attendance",
-  CREATE: "/attendance",
-  SHOW: (id: number | string) => `/attendance/${id}`,
-  UPDATE: (id: number | string) => `/attendance/${id}`,
-  DELETE: (id: number | string) => `/attendance/${id}`,
-  BY_CLASS: (classId: number | string) => `/attendance/class/${classId}`,
+  MARK: "/admin/attendance/mark",
+  /** GET, optional ?date=YYYY-MM-DD (defaults to today on the server) */
+  BY_CLASS: (classId: number | string) => `/admin/attendance/class/${classId}`,
   BY_STUDENT: (studentId: number | string) =>
-    `/attendance/student/${studentId}`,
-  REPORT: "/attendance/report",
-  BULK_CREATE: "/attendance/bulk",
+    `/admin/attendance/student/${studentId}`,
+  UPDATE: (id: number | string) => `/admin/attendance/update/${id}`,
 } as const;
 
 // ─── Assignments ──────────────────────────────────────────────────────────────
+// Base path: /admin/assignments
 export const ASSIGNMENTS = {
-  LIST: "/assignments",
-  CREATE: "/assignments",
-  SHOW: (id: number | string) => `/assignments/${id}`,
-  UPDATE: (id: number | string) => `/assignments/${id}`,
-  DELETE: (id: number | string) => `/assignments/${id}`,
-  SUBMIT: (id: number | string) => `/assignments/${id}/submit`,
-  SUBMISSIONS: (id: number | string) => `/assignments/${id}/submissions`,
-  GRADE: (id: number | string, submissionId: number | string) =>
-    `/assignments/${id}/submissions/${submissionId}/grade`,
-  BY_CLASS: (classId: number | string) => `/assignments/class/${classId}`,
-  BY_SUBJECT: (subjectId: number | string) =>
-    `/assignments/subject/${subjectId}`,
+  STORE: "/admin/assignments/store",
+  INDEX: "/admin/assignments/index",
+  SHOW: (id: number | string) => `/admin/assignments/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/assignments/update/${id}`,
+  REMOVE: (id: number | string) => `/admin/assignments/remove/${id}`,
+  UPDATE_SUBMISSION: (submissionId: number | string) =>
+    `/admin/assignments/submissions/update/${submissionId}`,
 } as const;
 
 // ─── Exams ────────────────────────────────────────────────────────────────────
+// Base path: /admin/exams
 export const EXAMS = {
-  LIST: "/exams",
-  CREATE: "/exams",
-  SHOW: (id: number | string) => `/exams/${id}`,
-  UPDATE: (id: number | string) => `/exams/${id}`,
-  DELETE: (id: number | string) => `/exams/${id}`,
-  RESULTS: (id: number | string) => `/exams/${id}/results`,
-  SUBMIT_RESULT: (id: number | string) => `/exams/${id}/results`,
-  UPDATE_RESULT: (id: number | string, resultId: number | string) =>
-    `/exams/${id}/results/${resultId}`,
-  DELETE_RESULT: (id: number | string, resultId: number | string) =>
-    `/exams/${id}/results/${resultId}`,
-  SCHEDULE: "/exams/schedule",
-  BY_CLASS: (classId: number | string) => `/exams/class/${classId}`,
-  BY_SUBJECT: (subjectId: number | string) => `/exams/subject/${subjectId}`,
+  STORE: "/admin/exams/store",
+  INDEX: "/admin/exams/index",
+  SHOW: (id: number | string) => `/admin/exams/findOne/${id}`,
+  UPDATE: (id: number | string) => `/admin/exams/update/${id}`,
+  TOGGLE_STATUS: (id: number | string) => `/admin/exams/toggleStatus/${id}`,
+  REMOVE: (id: number | string) => `/admin/exams/remove/${id}`,
+  UPDATE_RESULT: (resultId: number | string) =>
+    `/admin/exams/results/update/${resultId}`,
+  RESULTS_BY_CLASS: (classId: number | string) =>
+    `/admin/exams/results/class/${classId}`,
+  RESULTS_BY_STUDENT: (studentId: number | string) =>
+    `/admin/exams/results/student/${studentId}`,
 } as const;
 
 // ─── Role-Permissions (section 6) ─────────────────────────────────────────────

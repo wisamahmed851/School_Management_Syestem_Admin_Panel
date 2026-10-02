@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -10,7 +10,6 @@ import {
   type UpdateAdminFormValues,
 } from "@/lib/validators/admin.schema";
 import { useAdmin, useUpdateAdmin } from "@/hooks/use-admins";
-import { useRolesList } from "@/hooks/use-roles";
 import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
@@ -24,26 +23,18 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import { SimpleSelect } from "@/components/ui/select";
+import { uploadUrl } from "@/lib/utils";
 
 export default function EditAdminPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data: admin, isPending, isError } = useAdmin(id);
   const { mutate: updateAdmin, isPending: isSaving } = useUpdateAdmin();
-  const imageRef = useRef<File | null>(null);
-
-  // Only admin-guard roles for admin accounts
-  const { data: adminRoles = [], isPending: rolesLoading } =
-    useRolesList("admin");
-  const roleOptions = adminRoles.map((r) => ({
-    value: String(r.id),
-    label: r.name,
-  }));
+  const [image, setImage] = useState<File | null>(null);
 
   const form = useForm<UpdateAdminFormValues>({
     resolver: zodResolver(updateAdminSchema),
-    defaultValues: { name: "", email: "", password: "", role_id: undefined },
+    defaultValues: { name: "", email: "", password: "" },
   });
 
   useEffect(() => {
@@ -52,7 +43,6 @@ export default function EditAdminPage() {
         name: admin.name,
         email: admin.email,
         password: "",
-        role_id: undefined,
       });
     }
   }, [admin, form]);
@@ -79,11 +69,9 @@ export default function EditAdminPage() {
     // Don't send password if left blank
     const payload: UpdateAdminFormValues & { image?: File | null } = {
       ...values,
-      image: imageRef.current,
+      image,
     };
     if (!payload.password) delete payload.password;
-    // role_id is optional on update — only send if the user picked a new one
-    if (!payload.role_id) delete payload.role_id;
 
     updateAdmin(
       { id, payload },
@@ -138,9 +126,9 @@ export default function EditAdminPage() {
                   Profile image
                 </span>
                 <ImageUpload
-                  value={admin.image ?? undefined}
+                  value={uploadUrl(admin.image)}
                   onChange={(file) => {
-                    imageRef.current = file;
+                    setImage(file);
                   }}
                 />
               </div>
@@ -197,38 +185,6 @@ export default function EditAdminPage() {
                         autoComplete="new-password"
                         placeholder="••••••••"
                         {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-
-              <FormField
-                control={form.control}
-                name="role_id"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>
-                      Role{" "}
-                      <span className="text-muted-foreground">
-                        (optional — leave unchanged if not reassigning)
-                      </span>
-                    </FormLabel>
-                    <FormControl>
-                      <SimpleSelect
-                        options={roleOptions}
-                        value={field.value ? String(field.value) : ""}
-                        onValueChange={(val) => field.onChange(Number(val))}
-                        placeholder={
-                          rolesLoading
-                            ? "Loading roles…"
-                            : roleOptions.length === 0
-                              ? "No admin-guard roles available"
-                              : "Select a role to reassign"
-                        }
-                        disabled={rolesLoading || roleOptions.length === 0}
-                        aria-invalid={!!form.formState.errors.role_id}
                       />
                     </FormControl>
                     <FormMessage />

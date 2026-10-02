@@ -4,22 +4,19 @@ import { useState } from "react";
 import Link from "next/link";
 import { isAxiosError } from "axios";
 import { useUsersList, useToggleUserStatus } from "@/hooks/use-users";
-import { useSidebar } from "@/hooks/use-sidebar";
+import { useRouteActions } from "@/hooks/use-sidebar";
 import DataTable, { type ColumnDef } from "@/components/shared/DataTable";
 import { StatusBadge } from "@/components/shared/StatusBadge";
 import { Button } from "@/components/ui/button";
 import type { User } from "@/types/user";
+import { uploadUrl } from "@/lib/utils";
 
 export default function UsersPage() {
   const { data: users = [], isPending } = useUsersList();
-  const { data: sidebar } = useSidebar();
   const { mutate: toggleStatus } = useToggleUserStatus();
   const [forbiddenMsg, setForbiddenMsg] = useState<string | null>(null);
 
-  const node = sidebar?.menu
-    .flatMap((n) => ("children" in n ? n.children : [n]))
-    .find((n) => "route" in n && n.route === "/users");
-  const actions = node && "actions" in node ? node.actions : {};
+  const { actions } = useRouteActions("/users");
 
   // Users have no delete route per API docs section 3 — only toggleStatus
   const handleToggle = (id: number) => {
@@ -40,7 +37,7 @@ export default function UsersPage() {
         <div className="flex items-center gap-2">
           {r.image && (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={r.image} alt={r.name} className="h-7 w-7 rounded-full object-cover border border-border" />
+            <img src={uploadUrl(r.image)} alt={r.name} className="h-7 w-7 rounded-full object-cover border border-border" />
           )}
           <span>{r.name}</span>
         </div>
@@ -65,18 +62,18 @@ export default function UsersPage() {
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/users/${r.id}/permissions`}>Permissions</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/users/${r.id}/permissions`}></Link>}>
+              Permissions
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/users/${r.id}/roles`}>Roles</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/users/${r.id}/roles`}></Link>}>
+              Roles
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/users/${r.id}`}>Edit</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/users/${r.id}`}></Link>}>
+              Edit
             </Button>
           )}
         </div>
@@ -89,8 +86,8 @@ export default function UsersPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">Users</h1>
         {actions.create && (
-          <Button size="sm" asChild>
-            <Link href="/users/new">New user</Link>
+          <Button size="sm" render={<Link href="/users/new"></Link>}>
+            New user
           </Button>
         )}
       </div>

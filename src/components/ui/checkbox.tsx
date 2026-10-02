@@ -16,7 +16,7 @@ interface CheckboxProps {
 
 /**
  * Checkbox built on @base-ui/react/checkbox.
- * Supports the native indeterminate state via the indeterminate prop.
+ * Indeterminate state is handled natively by Base UI (sets data-indeterminate).
  */
 const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
   (
@@ -31,26 +31,12 @@ const Checkbox = React.forwardRef<HTMLButtonElement, CheckboxProps>(
     },
     ref
   ) => {
-    const innerRef = React.useRef<HTMLButtonElement>(null);
-    const resolvedRef = (ref as React.RefObject<HTMLButtonElement>) ?? innerRef;
-
-    // Drive the native indeterminate property on the underlying input
-    React.useEffect(() => {
-      const el = resolvedRef.current;
-      if (el) {
-        if (indeterminate) {
-          el.setAttribute("data-indeterminate", "");
-        } else {
-          el.removeAttribute("data-indeterminate");
-        }
-      }
-    }, [indeterminate, resolvedRef]);
-
     return (
       <CheckboxPrimitive.Root
-        ref={resolvedRef}
+        ref={ref}
         id={id}
-        checked={indeterminate ? "mixed" : checked}
+        checked={checked}
+        indeterminate={indeterminate}
         onCheckedChange={(val) => onCheckedChange?.(val === true)}
         disabled={disabled}
         aria-label={ariaLabel}

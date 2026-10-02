@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -28,7 +28,7 @@ import { SimpleSelect } from "@/components/ui/select";
 export default function NewUserPage() {
   const router = useRouter();
   const { mutate: createUser, isPending } = useCreateUser();
-  const imageRef = useRef<File | null>(null);
+  const [image, setImage] = useState<File | null>(null);
 
   // Only roles with guard="user" are valid for user accounts
   const { data: userRoles = [], isPending: rolesLoading } =
@@ -53,7 +53,7 @@ export default function NewUserPage() {
 
   const onSubmit = (values: CreateUserFormValues) => {
     createUser(
-      { ...values, image: imageRef.current },
+      { ...values, image },
       {
         onSuccess: () => router.push("/users"),
         onError: (err) => {
@@ -111,7 +111,7 @@ export default function NewUserPage() {
                 </span>
                 <ImageUpload
                   onChange={(file) => {
-                    imageRef.current = file;
+                    setImage(file);
                   }}
                 />
               </div>

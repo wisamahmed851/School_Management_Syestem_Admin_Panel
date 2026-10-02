@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useProfile } from "@/hooks/use-profile";
 import { useLogout } from "@/hooks/use-logout";
+import { uploadUrl } from "@/lib/utils";
 
 export default function ProfilePage() {
   const { data: profile, isPending } = useProfile();
@@ -55,7 +56,7 @@ export default function ProfilePage() {
                 <Avatar size="lg">
                   {profile.image && (
                     <AvatarImage
-                      src={profile.image}
+                      src={uploadUrl(profile.image)}
                       alt={profile.name}
                     />
                   )}
@@ -97,8 +98,8 @@ export default function ProfilePage() {
         </CardContent>
 
         <CardFooter className="gap-2">
-          <Button variant="outline" size="sm" asChild>
-            <Link href="/profile/change-password">Change Password</Link>
+          <Button variant="outline" size="sm" render={<Link href="/profile/change-password"></Link>}>
+            Change Password
           </Button>
           <Button
             variant="destructive"

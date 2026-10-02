@@ -3,12 +3,11 @@ import { persist } from "zustand/middleware";
 import type { AdminUser } from "@/types/admin";
 
 interface AuthState {
-  token: string | null;
   admin: AdminUser | null;
   isAuthenticated: boolean;
   /** Flat permissions list from GET /admin/sidebar — e.g. "students.create" */
   permissions: string[];
-  login: (token: string, admin: AdminUser) => void;
+  login: (admin: AdminUser) => void;
   logout: () => void;
   setPermissions: (permissions: string[]) => void;
 }
@@ -16,17 +15,16 @@ interface AuthState {
 export const useAuthStore = create<AuthState>()(
   persist(
     (set) => ({
-      token: null,
       admin: null,
       isAuthenticated: false,
       permissions: [],
 
-      login: (token: string, admin: AdminUser) => {
-        set({ token, admin, isAuthenticated: true });
+      login: (admin: AdminUser) => {
+        set({ admin, isAuthenticated: true });
       },
 
       logout: () => {
-        set({ token: null, admin: null, isAuthenticated: false, permissions: [] });
+        set({ admin: null, isAuthenticated: false, permissions: [] });
       },
 
       setPermissions: (permissions: string[]) => {
@@ -35,6 +33,8 @@ export const useAuthStore = create<AuthState>()(
     }),
     {
       name: "auth-storage",
+      // The access token lives only in the cookie; never persist it in localStorage.
+      partialize: (s) => ({ admin: s.admin, isAuthenticated: s.isAuthenticated }),
     }
   )
 );

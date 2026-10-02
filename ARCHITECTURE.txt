@@ -1,3 +1,5 @@
+Flows: see FLOW.md. Backend: ../School_Management_Syestem/ARCHITECTURE.md and FLOW.md.
+
 ================================================================================
 ARCHITECTURE — School Management System Admin Panel
 Read this before every task. Follow every rule without exception.
@@ -43,7 +45,7 @@ src/
 
   hooks/                      One file per resource; React Query wrappers only
     use-login.ts              Auth mutation
-    use-sidebar.ts            GET /admin/sidebar query
+    use-sidebar.ts            GET /admin/me/menu query
     use-admins.ts             Admin queries + mutations
     use-assignments.ts
     use-attendance.ts
@@ -126,7 +128,7 @@ Rules:
 ================================================================================
 ## Sidebar / permissions
 
-- The sidebar menu tree always comes from GET /admin/sidebar (useSidebar()).
+- The sidebar menu tree always comes from GET /admin/me/menu (useSidebar()).
   Render the array exactly as returned — do not filter, sort, reorder, or
   reconstruct it client-side from role or permission data.
 - Sidebar.tsx syncs data.permissions into auth-store via setPermissions()

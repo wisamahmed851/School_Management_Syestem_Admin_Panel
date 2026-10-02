@@ -64,8 +64,8 @@ export default function PermissionsPage() {
             </Button>
           )}
           {actions.update && (
-            <Button size="xs" variant="outline" asChild>
-              <Link href={`/permissions/${r.id}`}>Edit</Link>
+            <Button size="xs" variant="outline" render={<Link href={`/permissions/${r.id}`}></Link>}>
+              Edit
             </Button>
           )}
           {actions.remove && (
@@ -89,8 +89,8 @@ export default function PermissionsPage() {
       <div className="flex items-center justify-between">
         <h1 className="text-lg font-semibold text-foreground">Permissions</h1>
         {actions.create && (
-          <Button size="sm" asChild>
-            <Link href="/permissions/new">New permission</Link>
+          <Button size="sm" render={<Link href="/permissions/new"></Link>}>
+            New permission
           </Button>
         )}
       </div>
